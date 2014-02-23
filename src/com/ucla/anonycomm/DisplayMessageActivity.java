@@ -1,18 +1,18 @@
 package com.ucla.anonycomm;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+
+import com.ucla.anonycomm.R;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
@@ -82,6 +82,7 @@ public class DisplayMessageActivity extends Activity {
 	        protected void onPostExecute(Void res) {
 	       }
 	    }
+	 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
