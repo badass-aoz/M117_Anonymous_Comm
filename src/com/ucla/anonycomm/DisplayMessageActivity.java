@@ -1,5 +1,6 @@
 package com.ucla.anonycomm;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 
 import com.ucla.anonycomm.R;
 import android.annotation.TargetApi;
@@ -62,7 +67,19 @@ public class DisplayMessageActivity extends Activity {
 	              
 	        	HttpClient httpclient = new DefaultHttpClient();
 	    	    HttpPost httppost = new HttpPost("http://108.168.239.90:8080/session/send");
-	    		
+	    		/* New code */
+	    	    try {
+	    	    	MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+	    	    	// Change 'path' to get input from box instead of hard-coded
+	    	    	NameValuePair p = new BasicNameValuePair("image", "ic_launcher-web.png");
+	    	    	entity.addPart(p.getName(), new FileBody(new File(p.getValue())));
+	    	    	httppost.setEntity(entity);
+	    	    	
+	    	    	HttpResponse response = httpclient.execute(httppost);
+	    	    } catch (Exception e){}
+	    	    /* New code */
+	    	    
+	    	    /* Old Code
 	    	    try {
 	    	        // Add your data
 	    	        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(3);
@@ -75,6 +92,8 @@ public class DisplayMessageActivity extends Activity {
 	    	        HttpResponse response = httpclient.execute(httppost);
 	    	    } catch (Exception e) {
 	    	    }
+	    	    return null;
+	    	    */
 	    	    return null;
 	        }
 	        // onPostExecute displays the results of the AsyncTask.
