@@ -8,31 +8,32 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
-
+    
     <EditText
         android:id="@+id/edit_message"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="@string/edit_message" />
-
-    <Button
-        android:id="@+id/send_msg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/edit_message"
-        android:layout_below="@+id/edit_message"
-        android:onClick="sendMessage"
-        android:text="@string/button_send" />
+        android:onClick="selectPhoto"
+        android:textSize="20sp"
+        android:layout_marginRight="50dp"
+        android:textStyle="bold"
+        android:hint="@string/choose_photo" />
 
     <CheckBox
         android:id="@+id/encry_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/send_msg"
-        android:layout_alignBottom="@+id/send_msg"
-        android:layout_alignLeft="@+id/edit_message"
         android:hint="@string/encry_button"
+        android:layout_marginTop="38dp"
         android:onClick="encryChkboxClick" />
+
+    <Button
+        android:id="@+id/send_msg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="68dp"
+        android:onClick="sendMessage"
+        android:text="@string/button_send" />
 
 </RelativeLayout>
