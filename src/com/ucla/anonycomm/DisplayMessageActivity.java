@@ -8,7 +8,9 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.util.EntityUtils;
 import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 
@@ -23,6 +25,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -47,7 +50,7 @@ public class DisplayMessageActivity extends Activity {
 		Bitmap image = BitmapFactory.decodeFile(path);
 		imageView.setImageBitmap(image);
 
-		// new HTTPConn().execute();
+		new HTTPConn().execute();
 
 		setContentView(imageView, lp);
 	}
@@ -71,19 +74,18 @@ public class DisplayMessageActivity extends Activity {
 	        
 	        try {
 	        	// Get the image from the path
-	        	EditText text = (EditText) findViewById(R.id.edit_message);
-		        File file = new File(text.getText().toString());
+	        	Intent intent = getIntent();
+	    		String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+		        File file = new File(message);
 	        	// Add your data
 		        MultipartEntity entity = new MultipartEntity();
-	        	entity.addPart("offset", new StringBody("0"));
-	        	entity.addPart("count", new StringBody("1"));
-	        	entity.addPart("wait", new StringBody("false"));
-	        	entity.addPart("image", new FileBody(file, "image/bmp"));
+		        ContentBody cbFile = new FileBody(file, "image/*");
+		        entity.addPart("userfile", cbFile);
 	        	
     	        httppost.setEntity(entity);
     	        HttpResponse response = httpclient.execute(httppost);
-	        } catch (IOException e){
-	        	e.printStackTrace();
+	        } catch (Exception e){
+	        	Log.d("debug", "IOException");
 	        }
 	        return null;
 	    }

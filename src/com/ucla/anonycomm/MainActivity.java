@@ -69,7 +69,7 @@ public class MainActivity extends Activity {
     		      Context.INPUT_METHOD_SERVICE);
     	imm.hideSoftInputFromWindow(view.getWindowToken(), 2);
     	Intent intent = new Intent();
-    	intent.setType("image/bmp");
+    	intent.setType("image/*");
     	intent.setAction(Intent.ACTION_GET_CONTENT);
     	startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1);
     }
