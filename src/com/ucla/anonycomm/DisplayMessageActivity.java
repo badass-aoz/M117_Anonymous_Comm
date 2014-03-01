@@ -44,6 +44,7 @@ public class DisplayMessageActivity extends Activity {
 		new HTTPConn().execute();
 		
 		setContentView(textView);
+
 	}
 
 	/**
@@ -106,6 +107,6 @@ public class DisplayMessageActivity extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 
 }
