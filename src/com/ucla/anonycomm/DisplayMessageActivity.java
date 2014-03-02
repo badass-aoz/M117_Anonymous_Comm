@@ -23,6 +23,7 @@ import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class DisplayMessageActivity extends Activity {
 
@@ -36,16 +37,12 @@ public class DisplayMessageActivity extends Activity {
 		Intent intent = getIntent();
 		String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 		
-		// Create the text view
-		TextView textView = new TextView(this);
-		textView.setTextSize(40);
-		textView.setText(message);
+		TextView t_msg = (TextView) findViewById(R.id.sent_message);
+		t_msg.setTextSize(20);
+		t_msg.setText(message);
 		
 		// TODO: check func of ip and port
 		new HTTPConn().execute();
-		
-		setContentView(textView);
-
 	}
 	
 	// update m_ip and m_port inside onResume
@@ -71,9 +68,9 @@ public class DisplayMessageActivity extends Activity {
 		}
 	}
 
-	 private class HTTPConn extends AsyncTask<Void, Void, Void> {
+	 private class HTTPConn extends AsyncTask<Void, Void, HttpResponse> {
 	        @Override
-	        protected Void doInBackground(Void... arg) {
+	        protected HttpResponse doInBackground(Void... arg) {
 	              
 	        	HttpClient httpclient = new DefaultHttpClient();
 	    	    HttpPost httppost = new HttpPost("http://"+m_ip+":"+m_port+"/session/send");
@@ -87,14 +84,22 @@ public class DisplayMessageActivity extends Activity {
 	    	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
 	    	        // Execute HTTP Post Request
-	    	        HttpResponse response = httpclient.execute(httppost);
+	    	        return httpclient.execute(httppost);
 	    	    } catch (Exception e) {
+	    	    	
 	    	    }
 	    	    return null;
 	        }
 	        // onPostExecute displays the results of the AsyncTask.
 	        @Override
-	        protected void onPostExecute(Void res) {
+	        protected void onPostExecute(HttpResponse response) {
+    	        if (response!=null && response.getStatusLine().getStatusCode() == 200) {
+    	        	Toast.makeText(DisplayMessageActivity.this,
+        				"Sent Successfully", Toast.LENGTH_LONG).show();
+    	        } else {
+    	        	Toast.makeText(DisplayMessageActivity.this,
+        				"Failed to send", Toast.LENGTH_LONG).show();
+    	        }
 	       }
 	    }
 	 
