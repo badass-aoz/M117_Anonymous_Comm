@@ -1,10 +1,5 @@
 package com.ucla.anonycomm;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,52 +12,13 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 	
-	public final static String setting_file = "anony_comm_setings";
-	
 	public final static String EXTRA_MESSAGE = "com.ucla.AnonyComm.MESSAGE";
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        try {
-			if (fileExist(setting_file)) {
-				
-				// get content from setting files
-				// content should be of form ip:port
-				FileInputStream fi = openFileInput(setting_file);
-				String content = new String();
-				int c;
-				while ( (c= fi.read()) != -1) {
-					content += (char) c;
-				}
-				
-				// TODO, check assumption: input is valid
-				
-				// parse the content to get ip and ports
-				String[] ip_port = content.split(":");
-				server_ip_addr = ip_port[0]; 
-				server_port = ip_port[1];
-				
-				//remember to close the file
-				fi.close();
-			} else {
-				
-				// setting file does not exist (first time run)
-				// set default values
-				server_ip_addr = "108.168.239.90";
-				server_port = "8080";
-				
-				// write to setting file
-				saveSettings(server_ip_addr, server_port);
-			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+       
     }
 
     
@@ -120,27 +76,28 @@ public class MainActivity extends Activity {
         return true;
     }
     
-    private boolean fileExist(String fname){
-        return getBaseContext().getFileStreamPath(fname).exists();
-    }
-    
-    public void saveSettings(String ip, String port) {
-		try {
-			FileOutputStream fo = openFileOutput(setting_file, MODE_PRIVATE);
-			String content = ip+":"+port;
-			fo.write(content.getBytes());
-			
-			//close file stream
-			fo.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    }
-	
-	public static String server_ip_addr;
-	public static String server_port;
+//    private boolean fileExist(String fname){
+//        return getBaseContext().getFileStreamPath(fname).exists();
+//    }
+// 
+//    
+//    public void saveSettings(String ip, String port) {
+//		try {
+//			FileOutputStream fo = openFileOutput(setting_file, MODE_PRIVATE);
+//			String content = ip+":"+port;
+//			fo.write(content.getBytes());
+//			
+//			//close file stream
+//			fo.close();
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//    }
+//	
+//	public static String server_ip_addr;
+//	public static String server_port;
 }

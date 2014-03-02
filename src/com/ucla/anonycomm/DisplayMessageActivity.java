@@ -11,14 +11,14 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
-
-import com.ucla.anonycomm.R;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,10 +41,23 @@ public class DisplayMessageActivity extends Activity {
 		textView.setTextSize(40);
 		textView.setText(message);
 		
+		// TODO: check func of ip and port
 		new HTTPConn().execute();
 		
 		setContentView(textView);
 
+	}
+	
+	// update m_ip and m_port inside onResume
+	// as they need to be updated every time settings_activity is called
+	@Override
+	protected void onResume() {
+		
+		// without super.onResume, it will crash
+		super.onResume();
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		m_ip = settings.getString("setIP", "108.168.239.90");
+		m_port = settings.getString("setPort", "8080");
 	}
 
 	/**
@@ -62,7 +75,7 @@ public class DisplayMessageActivity extends Activity {
 	        protected Void doInBackground(Void... arg) {
 	              
 	        	HttpClient httpclient = new DefaultHttpClient();
-	    	    HttpPost httppost = new HttpPost("http://108.168.239.90:8080/session/send");
+	    	    HttpPost httppost = new HttpPost("http://"+m_ip+":"+m_port+"/session/send");
 	    		
 	    	    try {
 	    	        // Add your data
@@ -108,5 +121,7 @@ public class DisplayMessageActivity extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	private String m_ip;
+	private String m_port;
 
 }

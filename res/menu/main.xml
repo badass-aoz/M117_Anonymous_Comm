@@ -10,7 +10,7 @@
     <item 
         android:id="@+id/receive_message"
         android:showAsAction="always"
-        android:icon="@drawable/ic_menu_rec"
+        android:icon="@drawable/email_icon"
         android:title="@string/receive_msg"/>
     
 </menu>

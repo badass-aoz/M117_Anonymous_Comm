@@ -1,19 +1,27 @@
 package com.ucla.anonycomm;
 
 import android.os.Bundle;
-import android.app.Activity;
+import android.preference.PreferenceActivity;
+import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.support.v4.app.NavUtils;
 
-public class Settings extends Activity {
+public class Settings extends PreferenceActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_settings);
+		//setContentView(R.layout.activity_settings);
+		addPreferencesFromResource(R.layout.activity_settings);
 		// Show the Up button in the action bar.
 		setupActionBar();
+		
+		try {
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 	/**
@@ -48,16 +56,5 @@ public class Settings extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
-	public boolean saveSettings() {
-		
-		MainActivity.server_ip_addr = ip;
-		MainActivity.server_port = port;
-		MainActivity.
-		return true;
-	}
 	
-	public boolean cancelSettings() {
-		return true;
-	}
 }
