@@ -12,9 +12,12 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import android.annotation.TargetApi;
+import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,8 +25,10 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 public class DisplayMessageActivity extends Activity {
 
@@ -40,8 +45,17 @@ public class DisplayMessageActivity extends Activity {
 		TextView t_msg = (TextView) findViewById(R.id.sent_message);
 		t_msg.setTextSize(20);
 		t_msg.setText(message);
-		
-		// TODO: check func of ip and port
+
+		// Create the image view
+		ImageView imageView = new ImageView(this);
+		LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		String path = message;
+		Bitmap image = BitmapFactory.decodeFile(path);
+		imageView.setImageBitmap(image);
+
+		// possibly needs changing
+		//		setContentView(imageView, lp);
+
 		new HTTPConn().execute();
 	}
 	
@@ -101,7 +115,32 @@ public class DisplayMessageActivity extends Activity {
         				"Failed to send", Toast.LENGTH_LONG).show();
     	        }
 	       }
+
+// 		private class HTTPConn extends AsyncTask<Void, Void, Void> { 
+// 	    @Override
+// 	    protected Void doInBackground(Void... arg) {
+// 	    	HttpClient httpclient = new DefaultHttpClient();
+// 	        httpclient.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
+// 	        HttpPost httppost = new HttpPost("http://108.168.239.90:8080/session/send");
+	        
+// 	        try {
+// 	        	// Get the image from the path
+// 	        	Intent intent = getIntent();
+// 	    		String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+// 		        File file = new File(message);
+// 	        	// Add your data
+// 		        MultipartEntity entity = new MultipartEntity();
+// 		        ContentBody cbFile = new FileBody(file, "image/*");
+// 		        entity.addPart("userfile", cbFile);
+	        	
+//     	        httppost.setEntity(entity);
+//     	        HttpResponse response = httpclient.execute(httppost);
+// 	        } catch (Exception e){
+// 	        	Log.d("debug", "IOException");
+// 	        }
+// 	        return null;
 	    }
+	    
 	 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

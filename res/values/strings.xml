@@ -14,8 +14,6 @@
     <string name="title_section2">Section 2</string>
     <string name="title_section3">Section 3</string>
     <string name="title_activity_settings">Settings</string>
-	<string name="save_str">Save</string>
-	<string name="cancel_str">Cancel</string>
-	<string name="def_server_ip">108.168.239.90</string>
-	<string name="def_port">8080</string>
+    <string name="choose_photo">Click to Choose Photo</string>
+
 </resources>
