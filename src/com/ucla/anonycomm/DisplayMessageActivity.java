@@ -58,6 +58,7 @@ public class DisplayMessageActivity extends Activity {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 		m_ip = settings.getString("setIP", "108.168.239.90");
 		m_port = settings.getString("setPort", "8080");
+		m_encry = settings.getBoolean("setEncry", false);
 	}
 
 	/**
@@ -121,7 +122,7 @@ public class DisplayMessageActivity extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	private String m_ip;
-	private String m_port;
-
+	private String m_ip;  // Dissent server IP, default to "108.168.239.90"
+	private String m_port;  // Dissent server port, default to "8080"
+	private boolean m_encry;  // if true, encrypt messages with AES (TODO)
 }

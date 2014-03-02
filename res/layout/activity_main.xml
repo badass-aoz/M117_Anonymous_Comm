@@ -13,6 +13,7 @@
         android:id="@+id/edit_message"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/send_msg"
         android:ems="10"
         android:hint="@string/edit_message" />
 
@@ -20,19 +21,10 @@
         android:id="@+id/send_msg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/edit_message"
-        android:layout_below="@+id/edit_message"
+        android:layout_alignBottom="@+id/edit_message"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="14dp"
         android:onClick="sendMessage"
         android:text="@string/button_send" />
-
-    <CheckBox
-        android:id="@+id/encry_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/send_msg"
-        android:layout_alignBottom="@+id/send_msg"
-        android:layout_alignLeft="@+id/edit_message"
-        android:hint="@string/encry_button"
-        android:onClick="encryChkboxClick" />
 
 </RelativeLayout>

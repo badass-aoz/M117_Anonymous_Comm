@@ -13,6 +13,15 @@
             android:summary="Set the Dissent server port number"
         	android:key="setPort"/>
     </PreferenceCategory>
+    
+    <PreferenceCategory android:title="Security">
+        <CheckBoxPreference
+            android:title="Encryption"
+            android:id="@+id/encry_chkbox"
+            android:summary="Encrypt Messages with AES"
+        	android:key="setEncry"/>
+    </PreferenceCategory>
+    
 </PreferenceScreen>
 
 
