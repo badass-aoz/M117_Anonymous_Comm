@@ -40,15 +40,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    // who calls this function? Ao
-    // display a float box when the encryCheckBox is checked
-    public void encryChkboxClick(View view) {
-    	
-    	if (((CheckBox) view).isChecked()) {
-    		Toast.makeText(MainActivity.this,
-    				"Using AES encryption (not implemented yet)", Toast.LENGTH_LONG).show();
-    	}
-    }
 
     public void sendMessage(View view) {
     	Intent intent = new Intent(this, DisplayMessageActivity.class);
@@ -113,28 +104,4 @@ public class MainActivity extends Activity {
         return true;
     }
     
-//    private boolean fileExist(String fname){
-//        return getBaseContext().getFileStreamPath(fname).exists();
-//    }
-// 
-//    
-//    public void saveSettings(String ip, String port) {
-//		try {
-//			FileOutputStream fo = openFileOutput(setting_file, MODE_PRIVATE);
-//			String content = ip+":"+port;
-//			fo.write(content.getBytes());
-//			
-//			//close file stream
-//			fo.close();
-//		} catch (FileNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//    }
-//	
-//	public static String server_ip_addr;
-//	public static String server_port;
 }
