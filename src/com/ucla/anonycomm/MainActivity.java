@@ -11,13 +11,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
 	
 	public final static String EXTRA_MESSAGE = "com.ucla.AnonyComm.MESSAGE";
+	private String m_path;
+	public final static String EXTRA_PATH = "blah.blah";
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +47,7 @@ public class MainActivity extends Activity {
     	EditText editText = (EditText) findViewById(R.id.edit_message);
     	String message = editText.getText().toString();
     	intent.putExtra(EXTRA_MESSAGE, message);
+    	intent.putExtra(EXTRA_PATH, m_path);
     	startActivity(intent);
     }
     
@@ -87,9 +89,10 @@ public class MainActivity extends Activity {
 	    	case 1:
 	    	{
 	    		Uri udata = data.getData();
-	    		String path = getRealPathFromURI(udata);
-	    		EditText text = (EditText) findViewById(R.id.edit_message);
-	    		text.setText(path);
+	    		m_path = getRealPathFromURI(udata);
+	    		TextView text = (TextView) findViewById(R.id.image_path_textView);
+	    		text.setText("image chosen:\n" + m_path);
+	    		
 	    	}
 	    	break;
     	}

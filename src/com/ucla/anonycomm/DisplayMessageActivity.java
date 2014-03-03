@@ -1,19 +1,21 @@
 package com.ucla.anonycomm;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.message.BasicNameValuePair;
 
 import android.annotation.TargetApi;
-import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,11 +26,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class DisplayMessageActivity extends Activity {
@@ -41,21 +43,17 @@ public class DisplayMessageActivity extends Activity {
 			getActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 		Intent intent = getIntent();
-		String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+		m_message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 		
 		TextView t_msg = (TextView) findViewById(R.id.sent_message);
 		t_msg.setTextSize(20);
-		t_msg.setText(message);
+		t_msg.setText(m_message);
 
 		// Create the image view
-		ImageView imageView = new ImageView(this);
-		LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		String path = message;
-		Bitmap image = BitmapFactory.decodeFile(path);
+		ImageView imageView = (ImageView) findViewById(R.id.sent_image);
+		m_imagePath = intent.getStringExtra(MainActivity.EXTRA_PATH);
+		Bitmap image = BitmapFactory.decodeFile(m_imagePath);
 		imageView.setImageBitmap(image);
-
-		// possibly needs changing
-		//		setContentView(imageView, lp);
 
 		new HTTPConn().execute();
 	}
@@ -83,64 +81,46 @@ public class DisplayMessageActivity extends Activity {
 		}
 	}
 
-//	 private class HTTPConn extends AsyncTask<Void, Void, HttpResponse> {
-//	        @Override
-//	        protected HttpResponse doInBackground(Void... arg) {
-//	              
-//	        	HttpClient httpclient = new DefaultHttpClient();
-//	    	    HttpPost httppost = new HttpPost("http://"+m_ip+":"+m_port+"/session/send");
-//	    		
-//	    	    try {
-//	    	        // Add your data
-//	    	        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(3);
-//	    	        nameValuePairs.add(new BasicNameValuePair("offset", "0"));
-//	    	        nameValuePairs.add(new BasicNameValuePair("count", "1"));
-//	    	        nameValuePairs.add(new BasicNameValuePair("wait", "false"));
-//	    	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-//
-//	    	        // Execute HTTP Post Request
-//	    	        return httpclient.execute(httppost);
-//	    	    } catch (Exception e) {
-//	    	    	
-//	    	    }
-//	    	    return null;
-//	        }
-//	        // onPostExecute displays the results of the AsyncTask.
-//	        @Override
-//	        protected void onPostExecute(HttpResponse response) {
-//    	        if (response!=null && response.getStatusLine().getStatusCode() == 200) {
-//    	        	Toast.makeText(DisplayMessageActivity.this,
-//        				"Sent Successfully", Toast.LENGTH_LONG).show();
-//    	        } else {
-//    	        	Toast.makeText(DisplayMessageActivity.this,
-//        				"Failed to send", Toast.LENGTH_LONG).show();
-//    	        }
-//	       }
+	 private class HTTPConn extends AsyncTask<Void, Void, HttpResponse> {
+	        @Override
+	        protected HttpResponse doInBackground(Void... arg) {
+	        	HttpClient httpclient = new DefaultHttpClient();
+	    	    HttpPost httppost = new HttpPost("http://"+m_ip+":"+m_port+"/session/send");
+	    		
+	    	    try {
+	    	        // Add your data
+//	    	    	MultipartEntity entity = new MultipartEntity();
+//	 		        File file = new File(m_imagePath);
+//	    	    	ContentBody cbFile = new FileBody(file, "image/*");
+//	    	    	entity.addPart("userfile", cbFile);
+//	    	    	httppost.setEntity(entity);
 
- 		private class HTTPConn extends AsyncTask<Void, Void, Void> { 
- 	    @Override
- 	    protected Void doInBackground(Void... arg) {
- 	    	HttpClient httpclient = new DefaultHttpClient();
- 	        httpclient.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
- 	        HttpPost httppost = new HttpPost("http://108.168.239.90:8080/session/send");
-	        
- 	        try {
- 	        	// Get the image from the path
- 	        	Intent intent = getIntent();
- 	    		String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
- 		        File file = new File(message);
- 	        	// Add your data
- 		        MultipartEntity entity = new MultipartEntity();
- 		        ContentBody cbFile = new FileBody(file, "image/*");
- 		        entity.addPart("userfile", cbFile);
-	        	
-     	        httppost.setEntity(entity);
-     	        HttpResponse response = httpclient.execute(httppost);
- 	        } catch (Exception e){
- 	        	Log.d("debug", "IOException");
- 	        }
- 	        return null;
-	    }
+	    	    	List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+	    	        nameValuePairs.add(new BasicNameValuePair("message", "something"));
+// TODO: fix the async bug
+	    	        //	    	        nameValuePairs.add(new BasicNameValuePair("message", m_message));
+	    	        
+	    	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+	    	        
+		    	        // Execute HTTP Post Request
+	    	        return httpclient.execute(httppost);
+	    	    } catch (Exception e) {
+	    	    	
+	    	    }
+	    	    return null;
+	        }
+	        // onPostExecute displays the results of the AsyncTask.
+	        @Override
+	        protected void onPostExecute(HttpResponse response) {
+    	        if (response!=null && response.getStatusLine().getStatusCode() == 200) {
+    	        	Toast.makeText(DisplayMessageActivity.this,
+        				"Sent Successfully", Toast.LENGTH_LONG).show();
+    	        } else {
+    	        	Toast.makeText(DisplayMessageActivity.this,
+        				"Failed to send, response code "  , Toast.LENGTH_LONG).show();
+    	        	//response==null?"NULL":""+response.getStatusLine().getStatusCode()
+    	        }
+	       }
  	}	   
 	 
 	@Override
@@ -170,4 +150,6 @@ public class DisplayMessageActivity extends Activity {
 	private String m_ip;  // Dissent server IP, default to "108.168.239.90"
 	private String m_port;  // Dissent server port, default to "8080"
 	private boolean m_encry;  // if true, encrypt messages with AES (TODO)
+	private String m_imagePath;
+	private String m_message;
 }
