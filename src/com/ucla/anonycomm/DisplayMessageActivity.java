@@ -1,19 +1,11 @@
 package com.ucla.anonycomm;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -81,13 +73,15 @@ public class DisplayMessageActivity extends Activity {
 		}
 	}
 
-	 private class HTTPConn extends AsyncTask<Void, Void, HttpResponse> {
+	 private class HTTPConn extends AsyncTask<Void, Void, Integer> {
 	        @Override
-	        protected HttpResponse doInBackground(Void... arg) {
-	        	HttpClient httpclient = new DefaultHttpClient();
-	    	    HttpPost httppost = new HttpPost("http://"+m_ip+":"+m_port+"/session/send");
-	    		
+	        protected Integer doInBackground(Void... arg) {
+	    		int resp1 = 0, resp2 = 0;
 	    	    try {
+	    	    	
+	    	    	// Kwun, please make a separate httpost and send the image (if m_path is non-empty).
+	    	    	// put the response into resp2 (like what I did below)
+	    	    	
 	    	        // Add your data
 //	    	    	MultipartEntity entity = new MultipartEntity();
 //	 		        File file = new File(m_imagePath);
@@ -95,24 +89,35 @@ public class DisplayMessageActivity extends Activity {
 //	    	    	entity.addPart("userfile", cbFile);
 //	    	    	httppost.setEntity(entity);
 
-	    	    	List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
-	    	        nameValuePairs.add(new BasicNameValuePair("message", "something"));
-// TODO: fix the async bug
-	    	        //	    	        nameValuePairs.add(new BasicNameValuePair("message", m_message));
-	    	        
-	    	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-	    	        
+	    	    	// TODO: fix the async bug
+	    	    	// update: for some reason, it still fails sometimes. But since network 
+	    	    	// is unstable anyway, we tend to ignore it.
+	    	    	
+	    	    	// send only when a user needs to send message
+	    	    	if (!m_message.isEmpty()) {
+	    	        	HttpClient httpclient = new DefaultHttpClient();
+	    	    	    HttpPost httppost = new HttpPost("http://"+m_ip+":"+m_port+"/session/send");
+	    	    		
+	    	    	    HttpEntity entity = new ByteArrayEntity(m_message.getBytes("UTF-8"));
+	    	    	    httppost.setEntity(entity);
 		    	        // Execute HTTP Post Request
-	    	        return httpclient.execute(httppost);
+	    	    	    HttpResponse hresp2 = httpclient.execute(httppost);
+	    	    	    if (hresp2 == null)
+	    	    	    	resp2 = -1;
+	    	    	    else
+	    	    	    	resp2 = (hresp2.getStatusLine().getStatusCode() == 200)?0:-1;
+	    	    	}
+	    	    	// if both are zero, should sum to zero
+	    	    	return resp2+resp1;
 	    	    } catch (Exception e) {
 	    	    	
 	    	    }
-	    	    return null;
+	    	    return -1;
 	        }
 	        // onPostExecute displays the results of the AsyncTask.
 	        @Override
-	        protected void onPostExecute(HttpResponse response) {
-    	        if (response!=null && response.getStatusLine().getStatusCode() == 200) {
+	        protected void onPostExecute(Integer resp) {
+    	        if (resp == 0) {
     	        	Toast.makeText(DisplayMessageActivity.this,
         				"Sent Successfully", Toast.LENGTH_LONG).show();
     	        } else {

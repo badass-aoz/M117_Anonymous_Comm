@@ -18,7 +18,7 @@ public class MainActivity extends Activity {
 	
 	public final static String EXTRA_MESSAGE = "com.ucla.AnonyComm.MESSAGE";
 	private String m_path;
-	public final static String EXTRA_PATH = "blah.blah";
+	public final static String EXTRA_PATH = "";
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
