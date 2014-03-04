@@ -20,6 +20,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,7 +48,7 @@ public class DisplayMessageActivity extends Activity {
 		Bitmap image = BitmapFactory.decodeFile(m_imagePath);
 		imageView.setImageBitmap(image);
 
-		new HTTPConn().execute();
+		new SendMsg().execute();
 	}
 	
 	// update m_ip and m_port inside onResume
@@ -73,7 +74,7 @@ public class DisplayMessageActivity extends Activity {
 		}
 	}
 
-	 private class HTTPConn extends AsyncTask<Void, Void, Integer> {
+	 private class SendMsg extends AsyncTask<Void, Void, Integer> {
 	        @Override
 	        protected Integer doInBackground(Void... arg) {
 	    		int resp1 = 0, resp2 = 0;
@@ -135,6 +136,10 @@ public class DisplayMessageActivity extends Activity {
 		return true;
 	}
 
+	public void resend_msg(View view){
+		new SendMsg().execute();
+	}
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
