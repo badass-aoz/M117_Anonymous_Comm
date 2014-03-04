@@ -16,9 +16,9 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
 	
-	public final static String EXTRA_MESSAGE = "com.ucla.AnonyComm.MESSAGE";
-	private String m_path;
-	public final static String EXTRA_PATH = "";
+    public final static String EXTRA_MESSAGE = "com.ucla.AnonyComm.MESSAGE";
+    private String m_path;
+    public final static String EXTRA_PATH = "";
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +60,8 @@ public class MainActivity extends Activity {
     public void openSettings() {
     	Intent intent = new Intent(this, Settings.class);
     	
-    	//int requestCode = 1; //a random request code
-    	startActivity(intent);
+    	int requestCode = 1; //a random request code
+    	startActivityForResult(intent, requestCode);
     	
     }
     // Added code for getting photo and display it
@@ -85,18 +85,15 @@ public class MainActivity extends Activity {
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	switch (requestCode) {
-	    	case 1:
-	    	{
-	    		Uri udata = data.getData();
+    	super.onActivityResult(requestCode, resultCode, data);
+    	if(resultCode == Activity.RESULT_OK ) {
+            if(requestCode == 1) {
+            	Uri udata = data.getData();
 	    		m_path = getRealPathFromURI(udata);
 	    		TextView text = (TextView) findViewById(R.id.image_path_textView);
 	    		text.setText("image chosen:\n" + m_path);
-	    		
-	    	}
-	    	break;
-    	}
-    	super.onActivityResult(requestCode, resultCode, data);
+            }
+        }    	
     }
 	// Added code for getting photo and display it
 
