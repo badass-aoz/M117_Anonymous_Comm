@@ -11,6 +11,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -76,6 +77,15 @@ public class DisplayMessageActivity extends Activity {
 	}
 
 	 private class SendMsg extends AsyncTask<Void, Void, Integer> {
+		 
+		 private ProgressDialog dialog = new ProgressDialog(DisplayMessageActivity.this);
+		 
+		 @Override
+		 protected void onPreExecute() {
+		        this.dialog.setMessage("Sending. Be prepared to wait till the battery runs up :(");
+		        this.dialog.show();
+		 }
+		 
 	        @Override
 	        protected Integer doInBackground(Void... arg) {
 	    		int resp1 = 0, resp2 = 0;
@@ -135,6 +145,9 @@ public class DisplayMessageActivity extends Activity {
 	        // onPostExecute displays the results of the AsyncTask.
 	        @Override
 	        protected void onPostExecute(Integer resp) {
+	            if (dialog.isShowing()) {
+	                dialog.dismiss();
+	            }
     	        if (resp == 0) {
     	        	Toast.makeText(DisplayMessageActivity.this,
         				"Sent Successfully", Toast.LENGTH_LONG).show();

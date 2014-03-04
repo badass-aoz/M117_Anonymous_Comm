@@ -60,8 +60,8 @@ public class MainActivity extends Activity {
     public void openSettings() {
     	Intent intent = new Intent(this, Settings.class);
     	
-    	int requestCode = 1; //a random request code
-    	startActivityForResult(intent, requestCode);
+    	//int requestCode = 1; //a random request code
+    	startActivity(intent);
     	
     }
     // Added code for getting photo and display it
