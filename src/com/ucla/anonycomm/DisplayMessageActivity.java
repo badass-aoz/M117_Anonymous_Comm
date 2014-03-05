@@ -78,20 +78,20 @@ public class DisplayMessageActivity extends Activity {
 
 	 private class SendMsg extends AsyncTask<Void, Void, Integer> {
 		 
-		 private ProgressDialog dialog = new ProgressDialog(DisplayMessageActivity.this);
+		private ProgressDialog dialog = new ProgressDialog(DisplayMessageActivity.this);
 		 
-		 @Override
-		 protected void onPreExecute() {
+		@Override
+		protected void onPreExecute() {
 		        this.dialog.setMessage("Sending. Be prepared to wait till the battery runs up :(");
 		        this.dialog.show();
-		 }
+		}
 		 
 	        @Override
 	        protected Integer doInBackground(Void... arg) {
 	    		int resp1 = 0, resp2 = 0;
 	    		try {
 	    			// send photo only if the path is non empty
-	    	    	if(!m_imagePath.isEmpty()) {
+	    	    	    if(!m_imagePath.isEmpty()) {
 	    	    		HttpClient httpclient2 = new DefaultHttpClient();
 	    	    		HttpPost httppost2 = new HttpPost("http://" + m_ip + ":" + m_port + "/session/send");
 	    	    		
@@ -116,32 +116,29 @@ public class DisplayMessageActivity extends Activity {
 	    	    			resp1 = -1;
 	    	    		else
 	    	    			resp1 = (hresp1.getStatusLine().getStatusCode() == 200) ? 0 : -1;
-	    	    	}
-	    		} catch (Exception e) {
-	    			
-	    		}
-	    	    try {
-	    	    	// send only when a user needs to send message
-	    	    	if (!m_message.isEmpty()) {
+	    	    	    }
+	    		} catch (Exception e) {}
+	    		
+	    	        try {
+	    	    	    // send only when a user needs to send message
+	    	    	    if (!m_message.isEmpty()) {
 	    	        	HttpClient httpclient = new DefaultHttpClient();
-	    	    	    HttpPost httppost = new HttpPost("http://" + m_ip + ":" + m_port + "/session/send");
+	    	    	        HttpPost httppost = new HttpPost("http://" + m_ip + ":" + m_port + "/session/send");
 	    	    		
-	    	    	    HttpEntity entity = new ByteArrayEntity(m_message.getBytes("UTF-8"));
-	    	    	    httppost.setEntity(entity);
+	    	    	        HttpEntity entity = new ByteArrayEntity(m_message.getBytes("UTF-8"));
+	    	    	        httppost.setEntity(entity);
 		    	        // Execute HTTP Post Request
-	    	    	    HttpResponse hresp2 = httpclient.execute(httppost);
-	    	    	    if (hresp2 == null)
-	    	    	    	resp2 = -1;
-	    	    	    else
-	    	    	    	resp2 = (hresp2.getStatusLine().getStatusCode() == 200) ? 0 : -1;
-	    	    	}
-	    	    	
-	    	    } catch (Exception e) {
-	    	    	
-	    	    }
-	    	    // if both are zero, should sum to zero
-    	    	return resp2 + resp1;
+	    	    	        HttpResponse hresp2 = httpclient.execute(httppost);
+	    	    	        if (hresp2 == null)
+	    	    	    	    resp2 = -1;
+	    	    	        else
+	    	    	    	    resp2 = (hresp2.getStatusLine().getStatusCode() == 200) ? 0 : -1;
+	    	            }
+	    	        } catch (Exception e) {}
+	    	        // if both are zero, should sum to zero
+    	    	        return resp2 + resp1;
 	        }
+	        
 	        // onPostExecute displays the results of the AsyncTask.
 	        @Override
 	        protected void onPostExecute(Integer resp) {
