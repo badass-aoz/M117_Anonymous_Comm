@@ -106,6 +106,7 @@ public class DisplayMessageActivity extends Activity {
 	    	    				contenthex += "0";
 	    	    			contenthex += hex;
 	    	    		}
+	    	    		contenthex = "_image_:" + contenthex;
 	    	    		
 	    	    		// Execute the post request
 	    	    		HttpEntity entity2 = new ByteArrayEntity(contenthex.getBytes("UTF-8"));
@@ -124,8 +125,9 @@ public class DisplayMessageActivity extends Activity {
 	    	    	    if (!m_message.isEmpty()) {
 	    	        	HttpClient httpclient = new DefaultHttpClient();
 	    	    	        HttpPost httppost = new HttpPost("http://" + m_ip + ":" + m_port + "/session/send");
-	    	    		
-	    	    	        HttpEntity entity = new ByteArrayEntity(m_message.getBytes("UTF-8"));
+
+	    	    		String text = "_text_:" + m_message;
+	    	    	        HttpEntity entity = new ByteArrayEntity(text.getBytes("UTF-8"));
 	    	    	        httppost.setEntity(entity);
 		    	        // Execute HTTP Post Request
 	    	    	        HttpResponse hresp2 = httpclient.execute(httppost);
