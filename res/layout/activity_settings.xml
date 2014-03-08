@@ -20,6 +20,11 @@
             android:id="@+id/encry_chkbox"
             android:summary="Encrypt Messages with AES"
         	android:key="setEncry"/>
+        <EditTextPreference
+            android:title="Encryption Phrase"
+            android:id="@+id/encry_text"
+            android:summary="Set the encryption key. If not set, will not encrypt."
+        	android:key="encryKey"/>
     </PreferenceCategory>
     
 </PreferenceScreen>

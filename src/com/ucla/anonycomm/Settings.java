@@ -15,7 +15,8 @@ public class Settings extends PreferenceActivity {
 		addPreferencesFromResource(R.layout.activity_settings);
 		// Show the Up button in the action bar.
 		setupActionBar();
-		
+		//TODO: let user press a button to automatically generate keys
+		//TODO: impl Diffie-hellman? 
 		try {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
