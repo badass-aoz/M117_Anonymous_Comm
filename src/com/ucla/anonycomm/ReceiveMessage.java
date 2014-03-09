@@ -33,15 +33,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class ReceiveMessage extends FragmentActivity implements
 		ActionBar.OnNavigationListener {
 
+	
 	/**
 	 * The serialization (saved instance state) Bundle key representing the
 	 * current dropdown position.
@@ -75,6 +78,13 @@ public class ReceiveMessage extends FragmentActivity implements
 		new ReceiveMsg().execute();
 	}
 
+	
+
+	public static byte convertAHex(String hexStr) {
+		return (byte) Integer.decode("0x"+hexStr).intValue();
+	}
+	
+	
 	 private class ReceiveMsg extends AsyncTask<Void, Void, String> {
 		 
 		 private ProgressDialog dialog = new ProgressDialog(ReceiveMessage.this);
@@ -84,9 +94,9 @@ public class ReceiveMessage extends FragmentActivity implements
 		        this.dialog.setMessage("Receiving. Better connect your phone to the charger :)");
 		        this.dialog.show();
 		 }
-		 
+
 	        @Override
-	        protected String doInBackground(Void... arg) {
+	    protected String doInBackground(Void... arg) {
 
 	    		HttpResponse response = null;
 	    		String response_String="";
@@ -103,13 +113,11 @@ public class ReceiveMessage extends FragmentActivity implements
 	    	    }
 	    	    // if both are zero, should sum to zero
     	    	return response_String;
-	        }
+	    }
 	        
-	        
-	        
-	        // onPostExecute displays the results of the AsyncTask.
-            @Override
-	        protected void onPostExecute(String response_String) {
+	    // onPostExecute displays the results of the AsyncTask.
+        @Override
+	    protected void onPostExecute(String response_String) {
 	            if (dialog.isShowing()) {
 	                dialog.dismiss();
 	            }
@@ -124,8 +132,9 @@ public class ReceiveMessage extends FragmentActivity implements
 
     	        //process the string
     	        String json=response_String;
-    	        //List<String> image_String=new ArrayList<String>();	
-    	        String image="image";
+    	        List<String> image_String=new ArrayList<String>();	
+    	        final List<Bitmap> bmp_array=new ArrayList<Bitmap>();
+    	        String image="";
     	        Bitmap bmp = null;
     	        byte[] data=null;
     	        try {
@@ -140,41 +149,46 @@ public class ReceiveMessage extends FragmentActivity implements
 					for(int i=0; i<jsonArr.length();i++)
 					{
                   
-						if(arr[i].length()<=7)
-							response_String += arr[i]+"\n\n";
+						if(arr[i].length()<=7){
+						   if(!response_String.contains(arr[i]))
+							response_String += arr[i]+"\n\n";}
 						else
 						{
-							if(arr[i].substring(0,7).equals("_text_:"))
-								response_String += arr[i].substring(7)+"\n\n";
+							if(arr[i].substring(0,7).equals("_text_:")){
+							  if(!response_String.contains(arr[i].substring(7)))
+								response_String += arr[i].substring(7)+"\n\n";}
 							if(arr[i].substring(0,8).equals("_image_:"))
-								image=arr[i].substring(9);
-						    if(arr[i].length()>=100 && !arr[i].substring(0, 7).equals("_text_:"))  // FIXME: Only receive the latest image now
-								image=arr[i];
+							  if(!image_String.contains(arr[i].substring(8)))
+								image_String.add(arr[i].substring(8));
 						}
 												
 				    }
 
 					//Convert hex string to byte array			    				    	 
-				   if(image!=""){   //FIXME: it only deal with the first graph now 
-
-		            	System.out.println("converting image...");
-		            	  System.out.println(image);
-		            	  System.out.println("image length="+image.length());
-		            	  
-		            /*	  int length = image.length();  
-		            	  if (length % 2 == 1)  
-		            	  {  
-		            	      image = "0" + image;  
+				   if(image_String.size()!=0){  
+                     for(int j=0; j<image_String.size();j++) {
+		                bmp=null;
+		                data=null;
+		                image="";
+		                
+		            	int length = image_String.get(j).length();  
+		            	image = image_String.get(j);
+		            	if (length % 2 == 1){  
+		            	      image = "0" +image;  
 		            	      length++;  
 		            	  } 
-		            	data = new byte[length / 2];
-		            	for (int i = 0; i < length; i += 2) {
-		                    data[i / 2] = (byte) ((Character.digit(image.charAt(i), 16) << 4)
-		                                         + Character.digit(image.charAt(i+1), 16));
-		                }
+		                data = new byte[length/2];
+		                for(int i = 0, k = 0; i < length; i += 2, k++) {
+                             String hexStr = image.substring(i, i+2);
+	        	             data[k] = convertAHex(hexStr);
+                        }
                        System.out.println(data);
-					   bmp = BitmapFactory.decodeByteArray(data, 0, data.length);*/					
-				   }
+					   
+                       bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
+                       if(bmp!=null)
+					     bmp_array.add(bmp);
+                     }
+			       }
 				 } catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -183,31 +197,46 @@ public class ReceiveMessage extends FragmentActivity implements
     	        //Display the message on the screen
     	        final TextView t_msg = (TextView) findViewById(R.id.received_message);
     			t_msg.setTextSize(20);
-    			//t_msg.setText(json);
     			t_msg.setText(response_String);
 		        t_msg.setMovementMethod(new ScrollingMovementMethod());
 	
 		        //Display the image on the screen
-		     	final ImageView imageView= (ImageView) findViewById(R.id.received_image);
-				if(bmp != null)  // For debugging purpose
-				{
-					imageView.setImageBitmap(bmp);
-                    System.out.println("Do have image.");
-				}
-				else
-				{
-					System.out.println("Do not have image.");
-				}
-    	        
+		        final RelativeLayout l = ((RelativeLayout)(findViewById(R.id.container)));
+		        for (int i = 0; i < bmp_array.size(); i ++) {
+		            ImageView image_temp = new ImageView(ReceiveMessage.this);
+		           
+		            image_temp.setImageBitmap(bmp_array.get(i));
+		            l.addView(image_temp);
+		            image_temp.setId(i);
+		            image_temp.getLayoutParams().height = 500;
+		            image_temp.getLayoutParams().width = 500;
+                    image_temp.setVisibility(View.INVISIBLE);
+		            MarginLayoutParams marginParams = new MarginLayoutParams(image_temp.getLayoutParams());
+		            marginParams.topMargin=200+i*480;
+		            marginParams.leftMargin=288;
+		            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(marginParams);
+		            image_temp.setLayoutParams(layoutParams); 
+		        }
+		        
                 // Button to switch between image and text
 				 Button button = (Button) findViewById(R.id.display_image);
-				 final Bitmap bmp2=bmp;
-				 
-				button.setOnClickListener(new View.OnClickListener() {
+
+				 button.setOnClickListener(new View.OnClickListener() {
 		            public void onClick(View v) {
 		                // Perform action on click		            	
-		            	t_msg.setVisibility(View.INVISIBLE);
-		            	imageView.setImageBitmap(bmp2);
+		            	if(t_msg.getVisibility() == View.VISIBLE){
+		            	  t_msg.setVisibility(View.INVISIBLE);
+		            	for(int i=0; i<bmp_array.size();i++){
+	            		  ImageView imageView= (ImageView) findViewById(i);
+		            	  imageView.setVisibility(View.VISIBLE);}       	
+         		        }
+		            	else
+		            	{
+			             for(int i=0; i<bmp_array.size();i++){
+			            		  ImageView imageView= (ImageView) findViewById(i);
+				            	  imageView.setVisibility(View.INVISIBLE);}       	
+		         		 t_msg.setVisibility(View.VISIBLE);
+		            	}
 		            }
 		        });
             
