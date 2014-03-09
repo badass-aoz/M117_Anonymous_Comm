@@ -1,11 +1,7 @@
 package com.ucla.anonycomm;
 
-import static org.abstractj.kalium.encoders.Encoder.HEX;
-import org.abstractj.kalium.encoders.*;
-
 import java.io.File;
 
-import org.abstractj.kalium.keys.SigningKey;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -68,8 +64,6 @@ public class DisplayMessageActivity extends Activity {
 		m_ip = settings.getString("setIP", "108.168.239.90");
 		m_port = settings.getString("setPort", "8080");
 		m_encry = settings.getBoolean("setEncry", false);
-		
-		m_key = settings.getString("encryKey", "");
 	}
 
 	/**
@@ -84,26 +78,27 @@ public class DisplayMessageActivity extends Activity {
 
 	 private class SendMsg extends AsyncTask<Void, Void, Integer> {
 		 
-		private ProgressDialog dialog = new ProgressDialog(DisplayMessageActivity.this);
+		 private ProgressDialog dialog = new ProgressDialog(DisplayMessageActivity.this);
 		 
-		@Override
-		protected void onPreExecute() {
+		 @Override
+		 protected void onPreExecute() {
 		        this.dialog.setMessage("Sending. Be prepared to wait till the battery runs up :(");
 		        this.dialog.show();
-		}
+		 }
 		 
 	        @Override
 	        protected Integer doInBackground(Void... arg) {
 	    		int resp1 = 0, resp2 = 0;
 	    		try {
 	    			// send photo only if the path is non empty
-	    	    	    if(!m_imagePath.isEmpty()) {
+	    	    	if(!m_imagePath.isEmpty()) {
 	    	    		HttpClient httpclient2 = new DefaultHttpClient();
 	    	    		HttpPost httppost2 = new HttpPost("http://" + m_ip + ":" + m_port + "/session/send");
 	    	    		
 	    	    		// Get the bytes of the image
 	    	    		File f = new File(m_imagePath);
 	    	    		byte[] content = org.apache.commons.io.FileUtils.readFileToByteArray(f);
+	    	    		System.out.println("sending content="+content);
 	    	    		// Convert the bytes into hexadecimal string
 	    	    		String contenthex = "";
 	    	    		for (int i = 0; i < content.length; i++) {
@@ -112,7 +107,9 @@ public class DisplayMessageActivity extends Activity {
 	    	    				contenthex += "0";
 	    	    			contenthex += hex;
 	    	    		}
+	    	    		
 	    	    		contenthex = "_image_:" + contenthex;
+	    	    		
 	    	    		
 	    	    		// Execute the post request
 	    	    		HttpEntity entity2 = new ByteArrayEntity(contenthex.getBytes("UTF-8"));
@@ -123,44 +120,33 @@ public class DisplayMessageActivity extends Activity {
 	    	    			resp1 = -1;
 	    	    		else
 	    	    			resp1 = (hresp1.getStatusLine().getStatusCode() == 200) ? 0 : -1;
-	    	    	    }
+	    	    	}
 	    		} catch (Exception e) {
-	    			resp1 = -1;
+	    			
 	    		}
-	    		
-	    	        try {
-	    	    	    // send only when a user needs to send message
-	    	    	    if (!m_message.isEmpty()) {
+	    	    try {
+	    	    	// send only when a user needs to send message
+	    	    	if (!m_message.isEmpty()) {
 	    	        	HttpClient httpclient = new DefaultHttpClient();
-	    	    	        HttpPost httppost = new HttpPost("http://" + m_ip + ":" + m_port + "/session/send");
-
-	    	    	        
-	    	    		HttpEntity entity;
-						if (m_encry && m_key!="") {
-							//TODO: automatically generate keys
-							
-							String privateKey = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a";
-							//String privateKey = m_key;
-							SigningKey sk = new SigningKey(privateKey, HEX);
-							String text = "_text_:" +sk.sign(HEX.encode(m_message.getBytes()), HEX);
-							entity = new ByteArrayEntity(text.getBytes("UTF-8"));
-						} else {
-							String text = "_text_:" + m_message;
-							entity = new ByteArrayEntity(text.getBytes("UTF-8"));
-						}
-	    	    	        httppost.setEntity(entity);
+	    	    	    HttpPost httppost = new HttpPost("http://" + m_ip + ":" + m_port + "/session/send");
+	    	    		
+	    	    	    String text = "_text_:" + m_message;
+	    	    	    HttpEntity entity = new ByteArrayEntity(text.getBytes("UTF-8"));
+	    	    	    httppost.setEntity(entity);
 		    	        // Execute HTTP Post Request
-	    	    	        HttpResponse hresp2 = httpclient.execute(httppost);
-	    	    	        if (hresp2 == null || hresp2.getStatusLine().getStatusCode() != 200)
-	    	    	    	    resp2 = -1;
-	    	            }
-	    	        } catch (Exception e) {
-	    	        	resp2 = -1;
-	    	        }
-	    	        // if both are zero, should sum to zero
-    	    	        return resp2 + resp1;
+	    	    	    HttpResponse hresp2 = httpclient.execute(httppost);
+	    	    	    if (hresp2 == null)
+	    	    	    	resp2 = -1;
+	    	    	    else
+	    	    	    	resp2 = (hresp2.getStatusLine().getStatusCode() == 200) ? 0 : -1;
+	    	    	}
+	    	    	
+	    	    } catch (Exception e) {
+	    	    	
+	    	    }
+	    	    // if both are zero, should sum to zero
+    	    	return resp2 + resp1;
 	        }
-	        
 	        // onPostExecute displays the results of the AsyncTask.
 	        @Override
 	        protected void onPostExecute(Integer resp) {
@@ -168,7 +154,6 @@ public class DisplayMessageActivity extends Activity {
 	                dialog.dismiss();
 	            }
     	        if (resp == 0) {
-    	        	//TODO: fix the failed to send bug
     	        	Toast.makeText(DisplayMessageActivity.this,
         				"Sent Successfully", Toast.LENGTH_LONG).show();
     	        } else {
@@ -208,8 +193,7 @@ public class DisplayMessageActivity extends Activity {
 
 	private String m_ip;  // Dissent server IP, default to "108.168.239.90"
 	private String m_port;  // Dissent server port, default to "8080"
-	private boolean m_encry;  
+	private boolean m_encry;  // if true, encrypt messages with AES (TODO)
 	private String m_imagePath;
 	private String m_message;
-	private String m_key;
 }
