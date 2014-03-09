@@ -3,6 +3,7 @@ package com.ucla.anonycomm;
 import static org.abstractj.kalium.encoders.Encoder.HEX;
 import org.abstractj.kalium.encoders.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 import org.abstractj.kalium.keys.SigningKey;
@@ -20,6 +21,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Bitmap.CompressFormat;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -41,6 +43,14 @@ public class DisplayMessageActivity extends Activity {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			getActionBar().setDisplayHomeAsUpEnabled(true);
 		}
+		
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		m_ip = settings.getString("setIP", "108.168.239.90");
+		m_port = settings.getString("setPort", "8080");
+		m_encry = settings.getBoolean("setEncry", false);
+		
+		m_key = settings.getString("encryKey", "");
+		
 		Intent intent = getIntent();
 		m_message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 		
@@ -101,10 +111,17 @@ public class DisplayMessageActivity extends Activity {
 	    	    		HttpClient httpclient2 = new DefaultHttpClient();
 	    	    		HttpPost httppost2 = new HttpPost("http://" + m_ip + ":" + m_port + "/session/send");
 	    	    		
+	    	    		
 	    	    		// Get the bytes of the image
-	    	    		File f = new File(m_imagePath);
-	    	    		byte[] content = org.apache.commons.io.FileUtils.readFileToByteArray(f);
-	    	    		// Convert the bytes into hexadecimal string
+	    	    		//File f = new File(m_imagePath);
+	    	    		Bitmap bm = BitmapFactory.decodeFile(m_imagePath);
+	    	    		Bitmap resized = Bitmap.createScaledBitmap( bm, 80, 80, true);
+	    	    		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				        resized.compress(CompressFormat.JPEG, 40, bos);
+	    	    		//byte[] content = org.apache.commons.io.FileUtils.readFileToByteArray(f);
+	    	    		byte[] content = bos.toByteArray();
+	    	    		System.out.println(content.length);
+				        // Convert the bytes into hexadecimal string
 	    	    		String contenthex = "";
 	    	    		for (int i = 0; i < content.length; i++) {
 	    	    			String hex = Integer.toHexString(0xFF & content[i]);
@@ -119,12 +136,15 @@ public class DisplayMessageActivity extends Activity {
 	    	    		httppost2.setEntity(entity2);
 	    	    		
 	    	    		HttpResponse hresp1 = httpclient2.execute(httppost2);
-	    	    		if(hresp1 == null)
-	    	    			resp1 = -1;
-	    	    		else
+	    	    		if(hresp1 == null){
+	    	    			resp1=-1;
+	    	    		}
+	    	    		else{
 	    	    			resp1 = (hresp1.getStatusLine().getStatusCode() == 200) ? 0 : -1;
-	    	    	    }
+	    	    		}
+	    	    	}
 	    		} catch (Exception e) {
+	    			e.printStackTrace();
 	    			resp1 = -1;
 	    		}
 	    		
