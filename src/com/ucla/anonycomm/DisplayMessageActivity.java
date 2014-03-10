@@ -61,7 +61,7 @@ public class DisplayMessageActivity extends Activity {
 			m_key = savedInstanceState.getString(PRIVATE_KEY);
 		}
 		else{
-			//m_key = 
+			m_key =""; 
 		}
 		
 		Intent intent = getIntent();
@@ -118,7 +118,7 @@ public class DisplayMessageActivity extends Activity {
 	    		int resp1 = 0, resp2 = 0;
 	    		try {
 	    			// send photo only if the path is non empty
-	    	    	    if(!m_imagePath.isEmpty()) {
+	    	    	    if((m_imagePath!=null)&&!m_imagePath.isEmpty()) {
 	    	    		HttpClient httpclient2 = new DefaultHttpClient();
 	    	    		HttpPost httppost2 = new HttpPost("http://" + m_ip + ":" + m_port + "/session/send");
 	    	    		
