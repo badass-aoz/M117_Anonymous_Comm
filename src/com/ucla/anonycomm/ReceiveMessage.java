@@ -78,8 +78,6 @@ public class ReceiveMessage extends FragmentActivity implements
 		new ReceiveMsg().execute();
 	}
 
-<<<<<<< HEAD
-=======
 	
 
 	public static byte convertAHex(String hexStr) {
@@ -87,7 +85,6 @@ public class ReceiveMessage extends FragmentActivity implements
 	}
 	
 	
->>>>>>> 02d11119ac7eeb8ebd63af4e652a7660b368d394
 	 private class ReceiveMsg extends AsyncTask<Void, Void, String> {
 		 
 		 private ProgressDialog dialog = new ProgressDialog(ReceiveMessage.this);
@@ -97,15 +94,9 @@ public class ReceiveMessage extends FragmentActivity implements
 		        this.dialog.setMessage("Receiving. Better connect your phone to the charger :)");
 		        this.dialog.show();
 		 }
-<<<<<<< HEAD
-		 
-	        @Override
-	        protected String doInBackground(Void... arg) {
-=======
 
 	        @Override
 	    protected String doInBackground(Void... arg) {
->>>>>>> 02d11119ac7eeb8ebd63af4e652a7660b368d394
 
 	    		HttpResponse response = null;
 	    		String response_String="";
@@ -122,21 +113,11 @@ public class ReceiveMessage extends FragmentActivity implements
 	    	    }
 	    	    // if both are zero, should sum to zero
     	    	return response_String;
-<<<<<<< HEAD
-	        }
-	        
-	        
-	        
-	        // onPostExecute displays the results of the AsyncTask.
-            @Override
-	        protected void onPostExecute(String response_String) {
-=======
 	    }
 	        
 	    // onPostExecute displays the results of the AsyncTask.
         @Override
 	    protected void onPostExecute(String response_String) {
->>>>>>> 02d11119ac7eeb8ebd63af4e652a7660b368d394
 	            if (dialog.isShowing()) {
 	                dialog.dismiss();
 	            }
@@ -151,14 +132,9 @@ public class ReceiveMessage extends FragmentActivity implements
 
     	        //process the string
     	        String json=response_String;
-<<<<<<< HEAD
-    	        //List<String> image_String=new ArrayList<String>();
-    	        String image="image";
-=======
     	        List<String> image_String=new ArrayList<String>();	
     	        final List<Bitmap> bmp_array=new ArrayList<Bitmap>();
     	        String image="";
->>>>>>> 02d11119ac7eeb8ebd63af4e652a7660b368d394
     	        Bitmap bmp = null;
     	        byte[] data=null;
     	        try {
@@ -167,28 +143,12 @@ public class ReceiveMessage extends FragmentActivity implements
 					String[] arr=new String[jsonArr.length()];
 					for(int i=0; i<jsonArr.length();i++)
 						arr[i]=(String) jsonArr.get(i);
-<<<<<<< HEAD
-					response_String="Start:";			
-=======
 					response_String="";			
->>>>>>> 02d11119ac7eeb8ebd63af4e652a7660b368d394
 					
 					// Split the Json message into Text_part and Image part
 					for(int i=0; i<jsonArr.length();i++)
 					{
                   
-<<<<<<< HEAD
-						if(arr[i].length()<=7)
-							response_String += arr[i]+"\n\n";
-						else
-						{
-							if(arr[i].substring(0,7).equals("_text_:"))
-								response_String += arr[i].substring(7)+"\n\n";
-							if(arr[i].substring(0,8).equals("_image_:"))
-								image=arr[i].substring(9);
-						    if(arr[i].length()>=100 && !arr[i].substring(0, 7).equals("_text_:"))  // FIXME: Only receive the latest image now
-								image=arr[i];
-=======
 						if(arr[i].length()<=7){
 						   if(!response_String.contains(arr[i]))
 							response_String += arr[i]+"\n\n";}
@@ -200,35 +160,11 @@ public class ReceiveMessage extends FragmentActivity implements
 							if(arr[i].substring(0,8).equals("_image_:"))
 							  if(!image_String.contains(arr[i].substring(8)))
 								image_String.add(arr[i].substring(8));
->>>>>>> 02d11119ac7eeb8ebd63af4e652a7660b368d394
 						}
 												
 				    }
 
 					//Convert hex string to byte array			    				    	 
-<<<<<<< HEAD
-				   if(image!=""){   //FIXME: it only deal with the first graph now 
-
-		            	Toast.makeText(ReceiveMessage.this,
-	        				"converting image", Toast.LENGTH_LONG).show();
-		            	  System.out.println(image);
-		            	  System.out.println("image length="+image.length());
-		            	  
-		            	  int length = image.length();  
-		            	  if (length % 2 == 1)  
-		            	  {  
-		            	      image = "0" + image;  
-		            	      length++;  
-		            	  } 
-		            	data = new byte[length / 2];
-		            	for (int i = 0; i < length; i += 2) {
-		                    data[i / 2] = (byte) ((Character.digit(image.charAt(i), 16) << 4)
-		                                         + Character.digit(image.charAt(i+1), 16));
-		                }
-                       System.out.println(data);
-					   bmp = BitmapFactory.decodeByteArray(data, 0, data.length);					
-				   }
-=======
 				   if(image_String.size()!=0){  
                      for(int j=0; j<image_String.size();j++) {
 		                bmp=null;
@@ -253,7 +189,6 @@ public class ReceiveMessage extends FragmentActivity implements
 					     bmp_array.add(bmp);
                      }
 			       }
->>>>>>> 02d11119ac7eeb8ebd63af4e652a7660b368d394
 				 } catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -262,35 +197,6 @@ public class ReceiveMessage extends FragmentActivity implements
     	        //Display the message on the screen
     	        final TextView t_msg = (TextView) findViewById(R.id.received_message);
     			t_msg.setTextSize(20);
-<<<<<<< HEAD
-    			//t_msg.setText(json);
-    			t_msg.setText(image);
-		        t_msg.setMovementMethod(new ScrollingMovementMethod());
-	
-		        //Display the image on the screen
-		     	final ImageView imageView= (ImageView) findViewById(R.id.received_image);
-				if(bmp != null)  // For debugging purpose
-				{
-					imageView.setImageBitmap(bmp);
-					Toast.makeText(ReceiveMessage.this,
-	        				"Do have image", Toast.LENGTH_LONG).show();
-				}
-				else
-				{
-					Toast.makeText(ReceiveMessage.this,
-	        				"Do not have image", Toast.LENGTH_LONG).show();
-				}
-    	        
-                // Button to switch between image and text
-				 Button button = (Button) findViewById(R.id.display_image);
-				 final Bitmap bmp2=bmp;
-				 
-				button.setOnClickListener(new View.OnClickListener() {
-		            public void onClick(View v) {
-		                // Perform action on click		            	
-		            	t_msg.setVisibility(View.INVISIBLE);
-		            	imageView.setImageBitmap(bmp2);
-=======
     			t_msg.setText(response_String);
 		        t_msg.setMovementMethod(new ScrollingMovementMethod());
 	
@@ -331,7 +237,6 @@ public class ReceiveMessage extends FragmentActivity implements
 				            	  imageView.setVisibility(View.INVISIBLE);}       	
 		         		 t_msg.setVisibility(View.VISIBLE);
 		            	}
->>>>>>> 02d11119ac7eeb8ebd63af4e652a7660b368d394
 		            }
 		        });
             
