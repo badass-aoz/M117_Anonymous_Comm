@@ -1,11 +1,10 @@
 package com.ucla.anonycomm;
 
 import static org.abstractj.kalium.encoders.Encoder.HEX;
-import org.abstractj.kalium.encoders.*;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 
+import org.abstractj.kalium.crypto.Box;
 import org.abstractj.kalium.keys.SigningKey;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -20,8 +19,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -44,12 +43,19 @@ public class DisplayMessageActivity extends Activity {
 			getActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 		
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		//TODO: share preferences between two activities
+//SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences settings = getSharedPreferences(Settings.PREF, 0);
 		m_ip = settings.getString("setIP", "108.168.239.90");
 		m_port = settings.getString("setPort", "8080");
-		m_encry = settings.getBoolean("setEncry", false);
 		
-		m_key = settings.getString("encryKey", "");
+		// init encryption related
+		m_encry = settings.getBoolean("setEncry", false);
+		if (m_encry) {
+			// default value. 
+			m_priKey = settings.getString("priKey", "");
+			m_pubKey = settings.getString("pubKey", "");
+		}
 		
 		Intent intent = getIntent();
 		m_message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
@@ -74,12 +80,16 @@ public class DisplayMessageActivity extends Activity {
 		
 		// without super.onResume, it will crash
 		super.onResume();
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences settings = getSharedPreferences(Settings.PREF, 0);
 		m_ip = settings.getString("setIP", "108.168.239.90");
 		m_port = settings.getString("setPort", "8080");
 		m_encry = settings.getBoolean("setEncry", false);
-		
-		m_key = settings.getString("encryKey", "");
+		if (m_encry) {
+			// default value. 
+			m_priKey = settings.getString("priKey", "");
+			m_pubKey = settings.getString("pubKey", "");
+			
+		}
 	}
 
 	/**
@@ -156,25 +166,26 @@ public class DisplayMessageActivity extends Activity {
 
 	    	    	        
 	    	    		HttpEntity entity;
-						if (m_encry && m_key!="") {
-							//TODO: automatically generate keys
-							
-							String privateKey = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a";
-							//String privateKey = m_key;
-							SigningKey sk = new SigningKey(privateKey, HEX);
-							String text = "_text_:" +sk.sign(HEX.encode(m_message.getBytes()), HEX);
-							entity = new ByteArrayEntity(text.getBytes("UTF-8"));
+	    	    		String text;
+	    	    		if (m_encry) {
+		                	Box bx = new Box(m_pubKey.getBytes(), m_priKey.getBytes());
+		                	bx.encrypt(Settings.NONCE.getBytes(), m_message.getBytes());
+		                	
+		                	// TODO: append the public key
+		                	text = "_text_:" + new String(bx.encrypt(Settings.NONCE.getBytes(), m_message.getBytes()), "UTF-8");
+
 						} else {
-							String text = "_text_:" + m_message;
-							entity = new ByteArrayEntity(text.getBytes("UTF-8"));
+							text = "_text_:" + m_message;
 						}
-	    	    	        httppost.setEntity(entity);
+						entity = new ByteArrayEntity(text.getBytes("UTF-8"));
+	    	    		httppost.setEntity(entity);
 		    	        // Execute HTTP Post Request
 	    	    	        HttpResponse hresp2 = httpclient.execute(httppost);
 	    	    	        if (hresp2 == null || hresp2.getStatusLine().getStatusCode() != 200)
 	    	    	    	    resp2 = -1;
 	    	            }
 	    	        } catch (Exception e) {
+
 	    	        	resp2 = -1;
 	    	        }
 	    	        // if both are zero, should sum to zero
@@ -187,6 +198,8 @@ public class DisplayMessageActivity extends Activity {
 	            if (dialog.isShowing()) {
 	                dialog.dismiss();
 	            }
+	        	Toast.makeText(DisplayMessageActivity.this,
+    				m_priKey+" "+m_pubKey, Toast.LENGTH_LONG).show();
     	        if (resp == 0) {
     	        	//TODO: fix the failed to send bug
     	        	Toast.makeText(DisplayMessageActivity.this,
@@ -231,5 +244,6 @@ public class DisplayMessageActivity extends Activity {
 	private boolean m_encry;  
 	private String m_imagePath;
 	private String m_message;
-	private String m_key;
+	private String m_priKey;
+	private String m_pubKey;
 }
