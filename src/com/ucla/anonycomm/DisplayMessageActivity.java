@@ -6,6 +6,8 @@ import java.io.ByteArrayOutputStream;
 
 import org.abstractj.kalium.crypto.Box;
 import org.abstractj.kalium.keys.SigningKey;
+import java.io.ByteArrayOutputStream;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -35,6 +37,14 @@ import android.widget.Toast;
 
 public class DisplayMessageActivity extends Activity {
 
+	public static final String PRIVATE_KEY = "com.ucla.anonycomm.privateKey";
+	@Override
+	public void onSaveInstanceState(Bundle savedInstanceState){
+		super.onSaveInstanceState(savedInstanceState);
+		if(m_key!=null)
+			savedInstanceState.putString(PRIVATE_KEY, m_key);
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -49,6 +59,7 @@ public class DisplayMessageActivity extends Activity {
 		m_ip = settings.getString("setIP", "108.168.239.90");
 		m_port = settings.getString("setPort", "8080");
 		
+<<<<<<< HEAD
 		// init encryption related
 		m_encry = settings.getBoolean("setEncry", false);
 		if (m_encry) {
@@ -83,6 +94,7 @@ public class DisplayMessageActivity extends Activity {
 		SharedPreferences settings = getSharedPreferences(Settings.PREF, 0);
 		m_ip = settings.getString("setIP", "108.168.239.90");
 		m_port = settings.getString("setPort", "8080");
+
 		m_encry = settings.getBoolean("setEncry", false);
 		if (m_encry) {
 			// default value. 
@@ -104,20 +116,20 @@ public class DisplayMessageActivity extends Activity {
 
 	 private class SendMsg extends AsyncTask<Void, Void, Integer> {
 		 
-		private ProgressDialog dialog = new ProgressDialog(DisplayMessageActivity.this);
+		 private ProgressDialog dialog = new ProgressDialog(DisplayMessageActivity.this);
 		 
-		@Override
-		protected void onPreExecute() {
+		 @Override
+		 protected void onPreExecute() {
 		        this.dialog.setMessage("Sending. Be prepared to wait till the battery runs up :(");
 		        this.dialog.show();
-		}
+		 }
 		 
 	        @Override
 	        protected Integer doInBackground(Void... arg) {
 	    		int resp1 = 0, resp2 = 0;
 	    		try {
 	    			// send photo only if the path is non empty
-	    	    	    if(!m_imagePath.isEmpty()) {
+	    	    	    if((m_imagePath!=null)&&!m_imagePath.isEmpty()) {
 	    	    		HttpClient httpclient2 = new DefaultHttpClient();
 	    	    		HttpPost httppost2 = new HttpPost("http://" + m_ip + ":" + m_port + "/session/send");
 	    	    		
@@ -139,7 +151,9 @@ public class DisplayMessageActivity extends Activity {
 	    	    				contenthex += "0";
 	    	    			contenthex += hex;
 	    	    		}
+	    	    		
 	    	    		contenthex = "_image_:" + contenthex;
+	    	    		
 	    	    		
 	    	    		// Execute the post request
 	    	    		HttpEntity entity2 = new ByteArrayEntity(contenthex.getBytes("UTF-8"));
@@ -157,10 +171,9 @@ public class DisplayMessageActivity extends Activity {
 	    			e.printStackTrace();
 	    			resp1 = -1;
 	    		}
-	    		
-	    	        try {
-	    	    	    // send only when a user needs to send message
-	    	    	    if (!m_message.isEmpty()) {
+	    	    try {
+	    	    	// send only when a user needs to send message
+	    	    	if (!m_message.isEmpty()) {
 	    	        	HttpClient httpclient = new DefaultHttpClient();
 	    	    	        HttpPost httppost = new HttpPost("http://" + m_ip + ":" + m_port + "/session/send");
 
@@ -191,7 +204,6 @@ public class DisplayMessageActivity extends Activity {
 	    	        // if both are zero, should sum to zero
     	    	        return resp2 + resp1;
 	        }
-	        
 	        // onPostExecute displays the results of the AsyncTask.
 	        @Override
 	        protected void onPostExecute(Integer resp) {
@@ -201,7 +213,6 @@ public class DisplayMessageActivity extends Activity {
 	        	Toast.makeText(DisplayMessageActivity.this,
     				m_priKey+" "+m_pubKey, Toast.LENGTH_LONG).show();
     	        if (resp == 0) {
-    	        	//TODO: fix the failed to send bug
     	        	Toast.makeText(DisplayMessageActivity.this,
         				"Sent Successfully", Toast.LENGTH_LONG).show();
     	        } else {
@@ -241,7 +252,6 @@ public class DisplayMessageActivity extends Activity {
 
 	private String m_ip;  // Dissent server IP, default to "108.168.239.90"
 	private String m_port;  // Dissent server port, default to "8080"
-	private boolean m_encry;  
 	private String m_imagePath;
 	private String m_message;
 	private String m_priKey;
