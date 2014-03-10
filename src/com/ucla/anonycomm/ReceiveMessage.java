@@ -1,24 +1,50 @@
 package com.ucla.anonycomm;
 
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.R.layout;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ReceiveMessage extends FragmentActivity implements
 		ActionBar.OnNavigationListener {
 
+	
 	/**
 	 * The serialization (saved instance state) Bundle key representing the
 	 * current dropdown position.
@@ -46,13 +72,186 @@ public class ReceiveMessage extends FragmentActivity implements
 								getString(R.string.title_section1),
 								getString(R.string.title_section2),
 								getString(R.string.title_section3), }), this);
+	
+
+
+		new ReceiveMsg().execute();
 	}
 
-	/**
-	 * Backward-compatible version of {@link ActionBar#getThemedContext()} that
-	 * simply returns the {@link android.app.Activity} if
-	 * <code>getThemedContext</code> is unavailable.
-	 */
+	
+
+	public static byte convertAHex(String hexStr) {
+		return (byte) Integer.decode("0x"+hexStr).intValue();
+	}
+	
+	
+	 private class ReceiveMsg extends AsyncTask<Void, Void, String> {
+		 
+		 private ProgressDialog dialog = new ProgressDialog(ReceiveMessage.this);
+		 
+		 @Override
+		 protected void onPreExecute() {
+		        this.dialog.setMessage("Receiving. Better connect your phone to the charger :)");
+		        this.dialog.show();
+		 }
+
+	        @Override
+	    protected String doInBackground(Void... arg) {
+
+	    		HttpResponse response = null;
+	    		String response_String="";
+	    		try {
+	    	    	// receive only when a user needs to receive message
+	    	        	HttpClient httpclient = new DefaultHttpClient();
+	    	    	    HttpGet httpget = new HttpGet("http://108.168.239.90:8080/session/messages?offset=0&count=100&wait=false");
+	    	    		response = httpclient.execute(httpget);
+        	    	    response_String = EntityUtils.toString(response.getEntity());	    		
+	    	    } catch (Exception e) {
+	    	    	Toast.makeText(ReceiveMessage.this,
+	        				"exception response"  , Toast.LENGTH_LONG).show();
+						
+	    	    }
+	    	    // if both are zero, should sum to zero
+    	    	return response_String;
+	    }
+	        
+	    // onPostExecute displays the results of the AsyncTask.
+        @Override
+	    protected void onPostExecute(String response_String) {
+	            if (dialog.isShowing()) {
+	                dialog.dismiss();
+	            }
+    	        if (response_String!=""){ 	
+    	        	Toast.makeText(ReceiveMessage.this,
+        				"Received Successfully", Toast.LENGTH_LONG).show();
+    	        } else {
+    	        	Toast.makeText(ReceiveMessage.this,
+        				"Failed to receive, please try again."  , Toast.LENGTH_LONG).show();
+    	        	    return ;
+    	        }
+
+    	        //process the string
+    	        String json=response_String;
+    	        List<String> image_String=new ArrayList<String>();	
+    	        final List<Bitmap> bmp_array=new ArrayList<Bitmap>();
+    	        String image="";
+    	        Bitmap bmp = null;
+    	        byte[] data=null;
+    	        try {
+					JSONObject obj = new JSONObject(json);
+					JSONArray jsonArr= obj.getJSONArray("messages");
+					String[] arr=new String[jsonArr.length()];
+					for(int i=0; i<jsonArr.length();i++)
+						arr[i]=(String) jsonArr.get(i);
+					response_String="";			
+					
+					// Split the Json message into Text_part and Image part
+					for(int i=0; i<jsonArr.length();i++)
+					{
+                  
+						if(arr[i].length()<=7){
+						   if(!response_String.contains(arr[i]))
+							response_String += arr[i]+"\n\n";}
+						else
+						{
+							if(arr[i].substring(0,7).equals("_text_:")){
+							  if(!response_String.contains(arr[i].substring(7)))
+								response_String += arr[i].substring(7)+"\n\n";}
+							if(arr[i].substring(0,8).equals("_image_:"))
+							  if(!image_String.contains(arr[i].substring(8)))
+								image_String.add(arr[i].substring(8));
+						}
+												
+				    }
+
+					//Convert hex string to byte array			    				    	 
+				   if(image_String.size()!=0){  
+                     for(int j=0; j<image_String.size();j++) {
+		                bmp=null;
+		                data=null;
+		                image="";
+		                
+		            	int length = image_String.get(j).length();  
+		            	image = image_String.get(j);
+		            	if (length % 2 == 1){  
+		            	      image = "0" +image;  
+		            	      length++;  
+		            	  } 
+		                data = new byte[length/2];
+		                for(int i = 0, k = 0; i < length; i += 2, k++) {
+                             String hexStr = image.substring(i, i+2);
+	        	             data[k] = convertAHex(hexStr);
+                        }
+                       System.out.println(data);
+					   
+                       bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
+                       if(bmp!=null)
+					     bmp_array.add(bmp);
+                     }
+			       }
+				 } catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
+    	        
+    	        //Display the message on the screen
+    	        final TextView t_msg = (TextView) findViewById(R.id.received_message);
+    			t_msg.setTextSize(20);
+    			t_msg.setText(response_String);
+		        t_msg.setMovementMethod(new ScrollingMovementMethod());
+	
+		        //Display the image on the screen
+		        final RelativeLayout l = ((RelativeLayout)(findViewById(R.id.container)));
+		        for (int i = 0; i < bmp_array.size(); i ++) {
+		            ImageView image_temp = new ImageView(ReceiveMessage.this);
+		           
+		            image_temp.setImageBitmap(bmp_array.get(i));
+		            l.addView(image_temp);
+		            image_temp.setId(i);
+		            image_temp.getLayoutParams().height = 500;
+		            image_temp.getLayoutParams().width = 500;
+                    image_temp.setVisibility(View.INVISIBLE);
+		            MarginLayoutParams marginParams = new MarginLayoutParams(image_temp.getLayoutParams());
+		            marginParams.topMargin=200+i*480;
+		            marginParams.leftMargin=288;
+		            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(marginParams);
+		            image_temp.setLayoutParams(layoutParams); 
+		        }
+		        
+                // Button to switch between image and text
+				 Button button = (Button) findViewById(R.id.display_image);
+
+				 button.setOnClickListener(new View.OnClickListener() {
+		            public void onClick(View v) {
+		                // Perform action on click		            	
+		            	if(t_msg.getVisibility() == View.VISIBLE){
+		            	  t_msg.setVisibility(View.INVISIBLE);
+		            	for(int i=0; i<bmp_array.size();i++){
+	            		  ImageView imageView= (ImageView) findViewById(i);
+		            	  imageView.setVisibility(View.VISIBLE);}       	
+         		        }
+		            	else
+		            	{
+			             for(int i=0; i<bmp_array.size();i++){
+			            		  ImageView imageView= (ImageView) findViewById(i);
+				            	  imageView.setVisibility(View.INVISIBLE);}       	
+		         		 t_msg.setVisibility(View.VISIBLE);
+		            	}
+		            }
+		        });
+            
+            }
+ 	}	   
+
+
+	 
+	 
+	 
+//	/**
+//	 * Backward-compatible version of {@link ActionBar#getThemedContext()} that
+//	 * simply returns the {@link android.app.Activity} if
+//	 * <code>getThemedContext</code> is unavailable.
+	 
 	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 	private Context getActionBarThemedContextCompat() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -78,13 +277,22 @@ public class ReceiveMessage extends FragmentActivity implements
 				.getSelectedNavigationIndex());
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.receive_message, menu);
-		return true;
-	}
 
+	
+
+	
+	
+		@Override
+		public boolean onCreateOptionsMenu(Menu menu) {
+			// Inflate the menu; this adds items to the action bar if it is present.
+			getMenuInflater().inflate(R.menu.receive_message, menu);
+			return true;
+		}
+
+		
+	
+	
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -142,4 +350,9 @@ public class ReceiveMessage extends FragmentActivity implements
 		}
 	}
 
+
+	private String m_ip;  // Dissent server IP, default to "108.168.239.90"
+	private String m_port;  // Dissent server port, default to "8080"
+	private boolean m_encry;  // if true, encrypt messages with AES (TODO)
+	private String m_message;
 }
