@@ -8,6 +8,7 @@
     <string name="encry_button">Encrypt Message</string>
     <string name="button_send">Send</string>
     <string name="title_activity_display_message">DisplayMessageActivity</string>
+    <string name="title_activity_reply">Reply Messages</string>
     <string name="receive_msg">Receive Message</string>
     <string name="title_activity_receive_message">ReceiveMessage</string>
     <string name="title_section1">Section 1</string>

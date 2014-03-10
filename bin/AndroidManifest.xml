@@ -14,7 +14,8 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme"
+        android:windowSoftInputMode="stateHidden" >
         <activity
             android:name="com.ucla.anonycomm.MainActivity"
             android:label="@string/app_name" >
@@ -23,6 +24,14 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="com.ucla.anonycomm.ReplyActivity"
+            android:label="@string/title_activity_reply"
+            android:parentActivityName="com.ucla.anonycomm.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ucla.anonycomm.MainActivity" />
         </activity>
         <activity
             android:name="com.ucla.anonycomm.DisplayMessageActivity"

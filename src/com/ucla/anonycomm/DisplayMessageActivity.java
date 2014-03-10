@@ -1,13 +1,8 @@
 package com.ucla.anonycomm;
 
-import static org.abstractj.kalium.encoders.Encoder.HEX;
-
 import java.io.ByteArrayOutputStream;
 
-import org.abstractj.kalium.crypto.Box;
-import org.abstractj.kalium.keys.SigningKey;
-import java.io.ByteArrayOutputStream;
-
+import org.abstractj.kalium.keys.KeyPair;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -36,14 +31,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class DisplayMessageActivity extends Activity {
-
-	public static final String PRIVATE_KEY = "com.ucla.anonycomm.privateKey";
-	@Override
-	public void onSaveInstanceState(Bundle savedInstanceState){
-		super.onSaveInstanceState(savedInstanceState);
-		if(m_key!=null)
-			savedInstanceState.putString(PRIVATE_KEY, m_key);
-	}
+	
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,19 +42,32 @@ public class DisplayMessageActivity extends Activity {
 			getActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 		
-		//TODO: share preferences between two activities
-//SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-		SharedPreferences settings = getSharedPreferences(Settings.PREF, 0);
-		m_ip = settings.getString("setIP", "108.168.239.90");
-		m_port = settings.getString("setPort", "8080");
+		//share preferences from settings
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+		m_ip = sharedPref.getString("setIP", "108.168.239.90");
+		m_port = sharedPref.getString("setPort", "8080");
 		
-<<<<<<< HEAD
-		// init encryption related
-		m_encry = settings.getBoolean("setEncry", false);
-		if (m_encry) {
-			// default value. 
-			m_priKey = settings.getString("priKey", "");
-			m_pubKey = settings.getString("pubKey", "");
+		
+		SharedPreferences keySetting = getSharedPreferences(MainActivity.PREF, 0);
+		m_priKey = keySetting.getString("priKey",null);
+		m_pubKey = keySetting.getString("pubKey",null);
+		
+		
+		if(m_priKey == null || m_pubKey == null){
+        	Toast.makeText(this,
+    				"Generating Key Pairs", Toast.LENGTH_LONG).show();
+        	
+        	//generate key pairs
+        	KeyPair keys = new KeyPair();
+        	m_priKey = keys.getPrivateKey().toString();
+        	m_pubKey= keys.getPublicKey().toString();
+        	
+        	//Add keys to the preference List
+        	SharedPreferences settings = getSharedPreferences(MainActivity.PREF, 0);
+        	SharedPreferences.Editor editor = settings.edit();
+        	editor.putString("pubKey", keys.getPublicKey().toString());
+        	editor.putString("priKey", keys.getPrivateKey().toString());
+        	editor.commit();
 		}
 		
 		Intent intent = getIntent();
@@ -91,17 +93,13 @@ public class DisplayMessageActivity extends Activity {
 		
 		// without super.onResume, it will crash
 		super.onResume();
-		SharedPreferences settings = getSharedPreferences(Settings.PREF, 0);
-		m_ip = settings.getString("setIP", "108.168.239.90");
-		m_port = settings.getString("setPort", "8080");
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+		m_ip = sharedPref.getString("setIP", "108.168.239.90");
+		m_port = sharedPref.getString("setPort", "8080");
 
-		m_encry = settings.getBoolean("setEncry", false);
-		if (m_encry) {
-			// default value. 
-			m_priKey = settings.getString("priKey", "");
-			m_pubKey = settings.getString("pubKey", "");
-			
-		}
+		SharedPreferences keySetting = getSharedPreferences(MainActivity.PREF, 0);
+		m_priKey = keySetting.getString("priKey",null);
+		m_pubKey = keySetting.getString("pubKey",null);
 	}
 
 	/**
@@ -152,7 +150,7 @@ public class DisplayMessageActivity extends Activity {
 	    	    			contenthex += hex;
 	    	    		}
 	    	    		
-	    	    		contenthex = "_image_:" + contenthex;
+	    	    		contenthex = "imge_" + contenthex+"_"+m_pubKey;
 	    	    		
 	    	    		
 	    	    		// Execute the post request
@@ -173,23 +171,16 @@ public class DisplayMessageActivity extends Activity {
 	    		}
 	    	    try {
 	    	    	// send only when a user needs to send message
-	    	    	if (!m_message.isEmpty()) {
+	    	    	if (m_message!=null && !m_message.isEmpty()) {
 	    	        	HttpClient httpclient = new DefaultHttpClient();
 	    	    	        HttpPost httppost = new HttpPost("http://" + m_ip + ":" + m_port + "/session/send");
 
 	    	    	        
 	    	    		HttpEntity entity;
 	    	    		String text;
-	    	    		if (m_encry) {
-		                	Box bx = new Box(m_pubKey.getBytes(), m_priKey.getBytes());
-		                	bx.encrypt(Settings.NONCE.getBytes(), m_message.getBytes());
-		                	
-		                	// TODO: append the public key
-		                	text = "_text_:" + new String(bx.encrypt(Settings.NONCE.getBytes(), m_message.getBytes()), "UTF-8");
-
-						} else {
-							text = "_text_:" + m_message;
-						}
+	    	    		
+	    	    		text = "text_" + m_message  + "_" + m_pubKey;
+	    	    		
 						entity = new ByteArrayEntity(text.getBytes("UTF-8"));
 	    	    		httppost.setEntity(entity);
 		    	        // Execute HTTP Post Request
@@ -210,8 +201,6 @@ public class DisplayMessageActivity extends Activity {
 	            if (dialog.isShowing()) {
 	                dialog.dismiss();
 	            }
-	        	Toast.makeText(DisplayMessageActivity.this,
-    				m_priKey+" "+m_pubKey, Toast.LENGTH_LONG).show();
     	        if (resp == 0) {
     	        	Toast.makeText(DisplayMessageActivity.this,
         				"Sent Successfully", Toast.LENGTH_LONG).show();

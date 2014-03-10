@@ -9,13 +9,21 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
+    <LinearLayout
+        android:layout_width="0px"
+        android:layout_height="0px"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
+
     <EditText
         android:id="@+id/edit_message"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/send_msg"
         android:ems="10"
-        android:hint="@string/edit_message" />
+        android:hint="@string/edit_message"
+        android:nextFocusLeft="@id/edit_message"
+        android:nextFocusUp="@id/edit_message" />
 
     <Button
         android:id="@+id/send_msg"
@@ -42,5 +50,18 @@
         android:layout_centerHorizontal="true"
         android:hint="@string/choose_photo"
         android:onClick="selectPhoto" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/attach_img_btn" >
+
+        <LinearLayout
+            android:id="@+id/dynamic"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            android:orientation="vertical" >
+        </LinearLayout>
+    </ScrollView>
 
 </RelativeLayout>

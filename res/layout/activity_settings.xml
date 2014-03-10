@@ -14,18 +14,6 @@
         	android:key="setPort"/>
     </PreferenceCategory>
     
-    <PreferenceCategory android:title="Security">
-        <CheckBoxPreference
-            android:title="Encryption"
-            android:id="@+id/encry_chkbox"
-            android:summary="Encrypt Messages with AES"
-        	android:key="setEncry"/>
-        <Preference
-            android:title="Generate Public/Private Key Pair"
-            android:id="@+id/genKey_button"
-            android:summary="Clear the old key pair (if any) and regenerate a random one"
-        	android:key="genKey_btn"/>
-    </PreferenceCategory>
     
 </PreferenceScreen>
 
