@@ -36,6 +36,14 @@ import android.widget.Toast;
 
 public class DisplayMessageActivity extends Activity {
 
+	public static final String PRIVATE_KEY = "com.ucla.anonycomm.privateKey";
+	@Override
+	public void onSaveInstanceState(Bundle savedInstanceState){
+		super.onSaveInstanceState(savedInstanceState);
+		if(m_key!=null)
+			savedInstanceState.putString(PRIVATE_KEY, m_key);
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -49,7 +57,12 @@ public class DisplayMessageActivity extends Activity {
 		m_port = settings.getString("setPort", "8080");
 		m_encry = settings.getBoolean("setEncry", false);
 		
-		m_key = settings.getString("encryKey", "");
+		if(savedInstanceState!=null){
+			m_key = savedInstanceState.getString(PRIVATE_KEY);
+		}
+		else{
+			//m_key = 
+		}
 		
 		Intent intent = getIntent();
 		m_message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
@@ -78,8 +91,6 @@ public class DisplayMessageActivity extends Activity {
 		m_ip = settings.getString("setIP", "108.168.239.90");
 		m_port = settings.getString("setPort", "8080");
 		m_encry = settings.getBoolean("setEncry", false);
-		
-		m_key = settings.getString("encryKey", "");
 	}
 
 	/**
@@ -188,7 +199,6 @@ public class DisplayMessageActivity extends Activity {
 	                dialog.dismiss();
 	            }
     	        if (resp == 0) {
-    	        	//TODO: fix the failed to send bug
     	        	Toast.makeText(DisplayMessageActivity.this,
         				"Sent Successfully", Toast.LENGTH_LONG).show();
     	        } else {

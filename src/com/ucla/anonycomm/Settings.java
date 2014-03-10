@@ -18,6 +18,7 @@ public class Settings extends PreferenceActivity {
 		//TODO: let user press a button to automatically generate keys
 		//TODO: impl Diffie-hellman? 
 		try {
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
